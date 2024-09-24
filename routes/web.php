@@ -31,6 +31,8 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/absensi',[AbsensiController::class,'index'])->name('absensi.index');
+Route::get('/recap',[AbsensiController::class,'recap_index'])->name('absensi.recap');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
