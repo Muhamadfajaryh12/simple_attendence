@@ -32,6 +32,7 @@ Route::get('/dashboard', function () {
 
 Route::get('/absensi',[AbsensiController::class,'index'])->name('absensi.index');
 Route::get('/recap',[AbsensiController::class,'recap_index'])->name('absensi.recap');
+Route::post('/store',[AbsensiController::class,'store'])->name('absensi.store');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

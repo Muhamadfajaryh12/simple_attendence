@@ -17,7 +17,7 @@ return new class extends Migration
             $table->text('foto');
             $table->string('status');
             $table->string('lokasi');
-            $table->unsignedBigInt('id_user');
+            $table->unsignedBigInteger('id_user');
             $table->foreign('id_user')->references('id')->on('users');
         });
     }
