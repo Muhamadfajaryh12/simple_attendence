@@ -3,12 +3,14 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import { ref, onMounted } from "vue";
 import axios from "axios";
 import { Inertia } from "@inertiajs/inertia";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 
 const videoRef = ref<HTMLVideoElement | null>(null);
 const locationRef = ref<{ latitude: number; longitude: number } | null>(null);
 const cityRef = ref<string | null>(null);
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 const photoTaken = ref(false);
+const userNameRef = ref<string | null>(null);
 const startCamera = async () => {
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         try {
@@ -45,25 +47,25 @@ const getLocation = () => {
         console.error("Geolocation is not supported by this browser.");
     }
 };
-const takePhoto = () => {
-    if (videoRef.value && canvasRef.value) {
-        const context = canvasRef.value.getContext("2d");
-        if (context) {
-            // Set canvas size to video dimensions
-            canvasRef.value.width = videoRef.value.videoWidth;
-            canvasRef.value.height = videoRef.value.videoHeight;
-            // Draw video frame to canvas
-            context.drawImage(
-                videoRef.value,
-                0,
-                0,
-                canvasRef.value.width,
-                canvasRef.value.height
-            );
-            photoTaken.value = true;
-        }
-    }
-};
+// const takePhoto = () => {
+//     if (videoRef.value && canvasRef.value) {
+//         const context = canvasRef.value.getContext("2d");
+//         if (context) {
+//             // Set canvas size to video dimensions
+//             canvasRef.value.width = videoRef.value.videoWidth;
+//             canvasRef.value.height = videoRef.value.videoHeight;
+//             // Draw video frame to canvas
+//             context.drawImage(
+//                 videoRef.value,
+//                 0,
+//                 0,
+//                 canvasRef.value.width,
+//                 canvasRef.value.height
+//             );
+//             photoTaken.value = true;
+//         }
+//     }
+// };
 const getCityName = async (latitude: number, longitude: number) => {
     // const url = `https://geocode.maps.co/reverse?lat=${latitude}&lon=${longitude}&api_key=66f39ac0c87e6795967372gys502270`;
     // try {
@@ -98,11 +100,11 @@ const submitPhoto = async () => {
         }
     }
     if (canvasRef.value) {
-        // Convert canvas to Blob (image)
         canvasRef.value.toBlob(async (blob) => {
             if (blob) {
                 const formData = new FormData();
                 formData.append("photo", blob, "photo.jpg");
+                formData.append("id_user", userNameRef.value.value);
 
                 try {
                     Inertia.post("/store", formData, {
@@ -127,23 +129,27 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="flex justify-center items-center h-screen">
-        <div class="text-center">
-            <h6 class="">Silahkan melakukan absensi</h6>
-            <video
-                autoplay="true"
-                ref="videoRef"
-                class="border-2 border border-black p-2"
-            ></video>
-            <PrimaryButton class="mt-10"> Submit </PrimaryButton>
-            <canvas ref="canvasRef" class="hidden"></canvas>
-
-            <button
-                @click="submitPhoto"
-                class="mt-5 bg-green-500 text-white p-2"
-            >
-                Submit Foto
-            </button>
+    <AuthenticatedLayout>
+        <div class="flex justify-center items-center h-screen">
+            <div class="text-center">
+                <h6 class="">Silahkan melakukan absensi</h6>
+                <video
+                    autoplay="true"
+                    ref="videoRef"
+                    class="border-2 border border-black p-2"
+                ></video>
+                <PrimaryButton class="mt-10" @click="submitPhoto">
+                    Submit
+                </PrimaryButton>
+                <canvas ref="canvasRef" class="hidden"></canvas>
+                <form>
+                    <input
+                        type="hidden"
+                        ref="userNameRef"
+                        :value="$page.props.auth.user.id"
+                    />
+                </form>
+            </div>
         </div>
-    </div>
+    </AuthenticatedLayout>
 </template>
